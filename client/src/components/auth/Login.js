@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, Fragment } from 'react';
+import { Link, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { login } from '../../store/actions/auth';
 
-const Login = () => {
+const Login = ({ login, isAuthenticated }) => {
     const [formData, SetFormData] = useState({
         email: '',
         password: ''
@@ -14,13 +16,15 @@ const Login = () => {
     //onsubmit
     const onSubmit = async e => {
         e.preventDefault();
+        login(formData);
+    }
 
+    if (isAuthenticated) {
+        return <Redirect to="/dashboard" />
     }
     return (
-        <section className="container">
-            <div className="alert alert-danger">
-                Invalid credentials
-        </div>
+
+        <Fragment>
             <h1 className="large text-primary">Sign In</h1>
             <p className="lead"><i className="fas fa-user"></i> Sign into Your Account</p>
             <form className="form" onSubmit={onSubmit}>
@@ -48,8 +52,10 @@ const Login = () => {
             <p className="my-1">
                 Don't have an account? <Link to="/register">Sign Up</Link>
             </p>
-        </section>
+        </Fragment>
     )
 }
-
-export default Login;
+const mapStateToProps = state => ({
+    isAuthenticated: state.auth.isAuthenticated
+});
+export default connect(mapStateToProps, { login })(Login);

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, Fragment } from 'react';
+import { Link, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setAlert } from '../../store/actions/alert';
+import { register } from '../../store/actions/auth';
 
-
-const Register = () => {
+const Register = ({ setAlert, register, isAuthenticated }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -20,28 +22,22 @@ const Register = () => {
 
         // check if password match
         if (password !== password2) {
-            console.log("Passwords do not match!")
+            setAlert('Passwords do not match.', 'danger');
         } else {
-            // //sending data
-            // const newUser = { name, email, password };
-            // try {
-            //     const config = {
-            //         headers: {
-            //             "Content-Type": "application/json"
-            //         }
-            //     };
-            //     const body = JSON.stringify(newUser);
-            //     const res = await axios.post('/api/users', body, config);
-            //     console.log(res.data);
-            // } catch (err) {
-            //     console.error(err.response.data);
-            // }
-
-
+            const newUser = {
+                name,
+                email,
+                password
+            }
+            register(newUser);
         }
     }
+
+    if (isAuthenticated) {
+        return <Redirect to="/dashboard" />
+    }
     return (
-        <section className="container">
+        <Fragment>
             <h1 className="large text-primary">Sign Up</h1>
             <p className="lead"><i className="fas fa-user"></i> Create Your Account</p>
             <form className="form" onSubmit={onSubmit}>
@@ -79,8 +75,10 @@ const Register = () => {
             <p className="my-1">
                 Already have an account? <Link to="/login">Sign In</Link>
             </p>
-        </section>
+        </Fragment>
     )
 }
-
-export default Register;
+const mapStateToProps = state => ({
+    isAuthenticated: state.auth.isAuthenticated
+});
+export default connect(mapStateToProps, { setAlert, register })(Register);
